@@ -39,6 +39,7 @@ Phần 1 của bài (blog tĩnh với Pages Router) nằm ở repo riêng: https
    ```
    DATABASE_URL="chuỗi kết nối Transaction pooler của Supabase (cổng 6543)"
    AUTH_SECRET="chuỗi ngẫu nhiên, tạo bằng: openssl rand -base64 32"
+   SEED_USER_PASSWORD="mật khẩu cho tài khoản thử, tối thiểu 6 ký tự"
    ```
 
    Lấy chuỗi kết nối ở Supabase: nút Connect, chọn Transaction pooler, thay phần mật khẩu bằng mật khẩu database của bạn. File `.env.local` đã nằm trong `.gitignore`, không đưa lên git.
@@ -49,9 +50,9 @@ Phần 1 của bài (blog tĩnh với Pages Router) nằm ở repo riêng: https
    npm run dev
    ```
 
-4. Tạo bảng và nạp dữ liệu mẫu bằng cách mở `http://localhost:3000/seed` một lần. Trang trả về `Database seeded successfully` khi thành công. Có thể chạy lại nhiều lần, dữ liệu không bị nhân đôi.
+4. Tạo bảng và nạp dữ liệu mẫu bằng cách mở `http://localhost:3000/seed` một lần. Trang trả về `Database seeded successfully` khi thành công. Có thể chạy lại nhiều lần, dữ liệu không bị nhân đôi. Route này chỉ hoạt động khi chạy `npm run dev`, ở môi trường production nó trả về 404.
 
-5. Mở `http://localhost:3000` và đăng nhập. Email và mật khẩu của tài khoản thử nằm trong phần chú thích đầu file `app/lib/placeholder-data.ts`.
+5. Mở `http://localhost:3000` và đăng nhập bằng email `user@nextmail.com` cùng mật khẩu bạn đặt ở `SEED_USER_PASSWORD`. Mật khẩu không nằm trong mã nguồn. Muốn đổi mật khẩu thì sửa biến này rồi mở lại `/seed`.
 
 Chạy bản production trên máy:
 
@@ -92,12 +93,12 @@ proxy.ts                chặn truy cập /dashboard khi chưa đăng nhập
 - Dữ liệu động (truy vấn database, `searchParams`, `params`, `usePathname`) được đặt trong `<Suspense>` theo yêu cầu của `cacheComponents`.
 - Ảnh trang chủ và ảnh đại diện khách hàng là file SVG tự tạo, không dùng ảnh PNG của khóa học.
 - Dùng Tailwind CSS 3 vì Tailwind 4 cần Node từ 20.19 trở lên.
-- Route `/seed` công khai chỉ dùng khi phát triển. Nên xóa hoặc bảo vệ route này trước khi deploy.
+- Route `/seed` chỉ dùng khi phát triển và tự tắt (trả về 404) khi chạy production.
 - Route `/api/auth/[...nextauth]` được thêm vào vì NextAuth cần khi chạy với Next.js 16.
 
 ## Triển khai
 
-Ứng dụng cần server Node.js (đăng nhập, Server Actions, truy vấn database) nên không chạy được trên hosting tĩnh như GitHub Pages. Có thể triển khai lên Vercel và khai báo hai biến `DATABASE_URL`, `AUTH_SECRET` trong phần cài đặt của dự án. Repo này chưa được triển khai.
+Ứng dụng cần server Node.js (đăng nhập, Server Actions, truy vấn database) nên không chạy được trên hosting tĩnh như GitHub Pages. Có thể triển khai lên Vercel: import repo, khai báo hai biến môi trường `DATABASE_URL` và `AUTH_SECRET` (dùng giá trị `AUTH_SECRET` mới, khác với giá trị ở máy local). Không cần khai báo `SEED_USER_PASSWORD` và `AUTH_TRUST_HOST` trên Vercel. Repo này chưa được triển khai.
 
 ## Bảo mật
 

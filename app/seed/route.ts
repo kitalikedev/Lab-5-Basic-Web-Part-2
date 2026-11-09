@@ -13,12 +13,12 @@ async function seedUsers() {
   `;
 
   for (const user of users) {
-    // Băm mật khẩu trước khi lưu
+    // Băm mật khẩu trước khi lưu. Chạy lại /seed sẽ cập nhật mật khẩu theo SEED_USER_PASSWORD.
     const hashedPassword = await bcrypt.hash(user.password, 10);
     await sql`
       INSERT INTO users (id, name, email, password)
       VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-      ON CONFLICT (id) DO NOTHING;
+      ON CONFLICT (id) DO UPDATE SET password = EXCLUDED.password;
     `;
   }
 }
@@ -94,6 +94,20 @@ async function lockDataApi() {
 }
 
 export async function GET() {
+  // Route này chỉ dùng khi phát triển: trên môi trường production (ví dụ Vercel) thì tắt hẳn
+  if (process.env.NODE_ENV === 'production') {
+    return new Response('Not Found', { status: 404 });
+  }
+
+  // Bắt buộc có mật khẩu thử từ biến môi trường, không dùng mật khẩu mặc định
+  const seedPassword = process.env.SEED_USER_PASSWORD;
+  if (!seedPassword || seedPassword.length < 6) {
+    return Response.json(
+      { error: 'Set SEED_USER_PASSWORD (at least 6 characters) in .env.local' },
+      { status: 400 },
+    );
+  }
+
   try {
     await seedUsers();
     await seedCustomers();

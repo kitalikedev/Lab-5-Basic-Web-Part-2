@@ -1,14 +1,13 @@
 // Dữ liệu mẫu dùng cho route /seed.
-// Tài khoản đăng nhập thử (chỉ dùng cho bài tập, chạy local):
-//   email: user@nextmail.com
-//   mật khẩu: 123456
+// Mật khẩu tài khoản thử KHÔNG nằm trong code. Đặt biến SEED_USER_PASSWORD
+// (tối thiểu 6 ký tự) trong .env.local trước khi chạy /seed.
 
 const users = [
   {
     id: '410544b2-4001-4271-9855-fec4b6a6442a',
     name: 'User',
     email: 'user@nextmail.com',
-    password: '123456',
+    password: process.env.SEED_USER_PASSWORD ?? '',
   },
 ];
 
